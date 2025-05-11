@@ -27,12 +27,12 @@ namespace libcomplexnumber {
 
     struct ComplexNumber {
     private:
-        double coefficient;
+        FractionNum coefficient;
         FractionNum power;
         bool pInPower;
 
     public:
-        explicit ComplexNumber(double coefficient_, FractionNum power_, bool pInPower_);
+        explicit ComplexNumber(FractionNum coefficient_, FractionNum power_, bool pInPower_);
         explicit ComplexNumber(std::string num);
     };
 
