@@ -5,7 +5,7 @@
 
 namespace libcnum {
     ComplexNumber::ComplexNumber(std::string num) {
-        pInPower = false;
+        bool pInPower = false;
 
         //Числитель/знаменатель коэффициэнта/степени
         long coefficientNumerator;
@@ -187,20 +187,18 @@ namespace libcnum {
 #pragma endregion
 
         // ReSharper disable once CppLocalVariableMightNotBeInitialized
-        coefficient = FractionNum(coefficientNumerator, coefficientDenominator);
+        coefficient = FractionNum(coefficientNumerator, coefficientDenominator, false);
         // ReSharper disable once CppLocalVariableMightNotBeInitialized
-        power = FractionNum(powerNumerator, powerDenominator);
+        power = FractionNum(powerNumerator, powerDenominator, pInPower);
     }
 
-    ComplexNumber::ComplexNumber(const FractionNum coefficient_, const FractionNum power_, const bool pInPower_) {
+    ComplexNumber::ComplexNumber(const FractionNum coefficient_, const FractionNum power_) {
         coefficient = coefficient_;
         power = power_;
-        pInPower = pInPower_;
     }
 
     ComplexNumber::ComplexNumber() {
         coefficient = FractionNum();
         power = FractionNum();
-        pInPower = false;
     }
 }

@@ -1,9 +1,10 @@
+#include <cmath>
 #include <iostream>
 
 #include "include/libcomplexnumber.h"
 
 #pragma region Тесты парсинга и операций с числами
-    void runComplexNumberParsingTestPositive(std::string num, const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) {
+    void runComplexNumberParsingTestPositive(const std::string &num, const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) {
         bool flag = false;
         try {
             flag = !libcnum::ComplexNumber(num).assert_test(cNum, cDen, pNum, pDen, pPow);
@@ -16,7 +17,7 @@
         }
     }
 
-    void runComplexNumbeTestNegative(std::string num) {
+    void runComplexNumbeTestNegative(const std::string &num) {
         try {
             auto i = libcnum::ComplexNumber(num);
         }

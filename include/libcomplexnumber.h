@@ -5,12 +5,13 @@
 namespace libcnum {
     struct FractionNum {
     private:
+        bool pInNumerator;
         long numerator;
         long denominator;
 
         static void simplify(long& numerator_, long& denominator_);
         explicit FractionNum();
-        explicit FractionNum(long numerator_, long denominator_);
+        explicit FractionNum(long numerator_, long denominator_, bool pInNumerator_);
 
     public:
         explicit operator double() const;
@@ -23,33 +24,31 @@ namespace libcnum {
         friend std::ostream& operator<< (std::ostream& os, const FractionNum& num);
 
 
-        bool assert_test(long cNum, long cDen) const {
+        bool assert_test(long cNum, long cDen, bool pNum) const {
             simplify(cNum, cDen);
-            return numerator == cNum && denominator == cDen;
+            return numerator == cNum && denominator == cDen && pInNumerator == pNum;
         }
         friend struct ComplexNumber;
-        friend FractionNum CreateFractionNum(long numerator_, long denominator_);
+        friend FractionNum CreateFractionNum(long numerator_, long denominator_, bool pInNumerator_);
     };
 
     struct ComplexNumber {
     private:
         FractionNum coefficient;
         FractionNum power;
-        bool pInPower;
 
     public:
-        explicit ComplexNumber(FractionNum coefficient_, FractionNum power_, bool pInPower_);
+        explicit ComplexNumber(FractionNum coefficient_, FractionNum power_);
         explicit ComplexNumber(std::string num);
         explicit ComplexNumber();
 
         //Штука для тестов парсинга при компиляции
         bool assert_test(const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) const {
-            return coefficient.assert_test(cNum, cDen) && power.assert_test(pNum, pDen) && pInPower == pPow;
+            return coefficient.assert_test(cNum, cDen, false) && power.assert_test(pNum, pDen, pPow);
         }
     };
 
-    FractionNum CreateFractionNum(long numerator_, long denominator_);
-
+    FractionNum CreateFractionNum(long numerator_, long denominator_, bool pInNumerator_);
 
 
 
