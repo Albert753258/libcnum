@@ -1,82 +1,9 @@
-//
-// Created by albert on 5/10/25.
-//
-
-#include "libcomplexnumber.h"
-
+#include "../include/libcomplexnumber.h"
 #include <cmath>
-#include <numeric>
-#include <stdexcept>
 #include <iostream>
-#include <cstring>
 
-namespace libcomplexnumber {
-    void FractionNum::simplify(long& numerator_, long& denominator_) {
-        const long gcd_val = std::gcd(numerator_, denominator_);
-        numerator_ /= gcd_val;
-        denominator_ /= gcd_val;
-    }
 
-    FractionNum::FractionNum(): numerator(1), denominator(1) { }
-
-    FractionNum::FractionNum(long numerator_, long denominator_) {
-        simplify(numerator_, denominator_);
-        numerator = numerator_;
-        denominator = denominator_;
-    }
-
-    FractionNum FractionNum::CreateFractionNum(long numerator_, long denominator_) {
-        if(denominator_ == 0) {
-            throw std::invalid_argument("denominator musn't be 0");
-        }
-        if(denominator_ < 0) {
-            numerator_ *= -1;
-            denominator_ *= -1;
-        }
-        return FractionNum(numerator_, denominator_);
-    }
-
-    //Вычислить дробь в десятичный double
-    FractionNum::operator double() const {
-        if(denominator == 1) {
-            return numerator;
-        }
-        return static_cast<double>(numerator) / denominator;
-    }
-
-    FractionNum FractionNum::operator/ (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator;
-        const long new_denom = denominator * other.numerator;
-        return FractionNum(new_num, new_denom);
-    }
-
-    FractionNum FractionNum::operator* (const FractionNum& other) const {
-        const long new_num = numerator * other.numerator;
-        const long new_denom = denominator * other.denominator;
-        return FractionNum(new_num, new_denom);
-    }
-
-    bool FractionNum::operator== (const FractionNum& other) const {
-        return (numerator == other.numerator) && (denominator == other.denominator);
-    }
-
-    FractionNum FractionNum::operator+ (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator + other.numerator * denominator;
-        const long new_denom = denominator * other.denominator;
-        return FractionNum(new_num, new_denom);
-    }
-
-    FractionNum FractionNum::operator- (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator - other.numerator * denominator;
-        const long new_denom = denominator * other.denominator;
-        return FractionNum(new_num, new_denom);
-    }
-
-    std::ostream& operator<<(std::ostream& os, const FractionNum& num) {
-        os << num.numerator << '/' << num.denominator;
-        return os;
-    }
-
+namespace libcnum {
     ComplexNumber::ComplexNumber(std::string num) {
         pInPower = false;
 
@@ -114,6 +41,9 @@ namespace libcomplexnumber {
                     coefficientNumerator = coefficientNumerator * coefficientDenominator + buf;
                 }
                 else {
+                    if(afterDotCount == 0) {
+                        throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
+                    }
                     coefficientNumerator = buf;
                     coefficientDenominator = 1;
                 }
@@ -123,6 +53,9 @@ namespace libcomplexnumber {
             else if(c == '.') {
                 if(dotFound) {
                     throw std::invalid_argument("Invalid complex number format: 2 точки в коэффициэнте");
+                }
+                if(afterDotCount == 0) {
+                    throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
                 }
                 afterDotCount = 0;
                 dotFound = true;
@@ -190,6 +123,9 @@ namespace libcomplexnumber {
                     powerNumerator = powerNumerator * powerDenominator + buf;
                 }
                 else {
+                    if(afterDotCount == 0) {
+                        throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
+                    }
                     powerNumerator = buf;
                     powerDenominator = 1;
                 }
@@ -199,6 +135,9 @@ namespace libcomplexnumber {
             else if(c == '.') {
                 if(dotFound) {
                     throw std::invalid_argument("Invalid complex number format: 2 точки в степене");
+                }
+                if(afterDotCount == 0) {
+                    throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
                 }
                 afterDotCount = 0;
                 dotFound = true;
@@ -257,5 +196,11 @@ namespace libcomplexnumber {
         coefficient = coefficient_;
         power = power_;
         pInPower = pInPower_;
+    }
+
+    ComplexNumber::ComplexNumber() {
+        coefficient = FractionNum();
+        power = FractionNum();
+        pInPower = false;
     }
 }
