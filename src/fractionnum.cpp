@@ -20,57 +20,63 @@ namespace libcnum {
         pInNumerator = pInNumerator_;
     }
 
-    // Преобразуем double в дробь (числитель / знаменатель)
-    std::pair<int64_t, int64_t> double_to_exact_fraction(double x) {
-        unsigned long long bits = *reinterpret_cast<unsigned long long*>(&x);
-        int sign = (bits >> 63) ? -1 : 1;
-        int exponent = ((bits >> 52) & 0x7FF) - 1023;
-        unsigned long long mantissa = (bits & 0x0FFFFFFFFFFFFF) | (exponent == -1023 ? 0 : 0x10000000000000);
-
-        // Числитель = мантисса * 2^max(0, exponent)
-        // Знаменатель = 2^(52 - min(0, exponent))
-        auto numerator = static_cast<int64_t>(mantissa);
-        int64_t denominator = 1LL << 52;
-
-        if (exponent > 0) {
-            numerator *= (1LL << exponent);
-        } else {
-            denominator *= (1LL << -exponent);
+    FractionNum::FractionNum(double num): pInNumerator(false) {
+        const auto bits = *reinterpret_cast<unsigned long long*>(&num);
+        static_assert(sizeof(double) == 8, "Для запуска не на 64-битной системе адаптируйте метод под вашу архитектуру процессора");
+        //11 бит, влезут в int
+        int exponent = static_cast<int>((bits >> 52 & 0x7FF) - 1023);
+        //Экспонента 0 - спецслучай для 0
+        if(exponent == -1023 ) {
+            numerator = 0;
+            denominator = 1;
+            return;
         }
+        //Отбрасываем 63-52 бит, в 52 бит подпихиваем 1 (нехранимая мнимая единица)
+        unsigned long long fraction = (bits & 0x0FFFFFFFFFFFFF) | 0x10000000000000;
 
-        // Упрощаем дробь
-        int64_t gcd = std::gcd(numerator, denominator);
-        numerator /= gcd;
-        denominator /= gcd;
-
-        return {sign * numerator, denominator};
-    }
-
-    //TODO досканально протестить этот код, разобраться как оно вообще работает
-    FractionNum::FractionNum(double num) {
-        unsigned long long bits = *reinterpret_cast<unsigned long long*>(&num);
-        int exponent = ((bits >> 52) & 0x7FF) - 1023;
-        unsigned long long mantissa = (bits & 0x0FFFFFFFFFFFFF) | (exponent == -1023 ? 0 : 0x10000000000000);
-
-        // Числитель = мантисса * 2^max(0, exponent)
-        // Знаменатель = 2^(52 - min(0, exponent))
-        numerator = static_cast<int64_t>(mantissa);
+        //Из-за мнимой единицы, числитель как бы умножается на 2^52, так что и знаменатель надо такой
         denominator = 1LL << 52;
 
         if (exponent > 0) {
-            numerator *= (1LL << exponent);
-        } else {
-            denominator *= (1LL << -exponent);
+            //Делим знаменатель на 2 пока это возможно
+            while((exponent != 0) && !(denominator & 0x1)) {
+                exponent--;
+                denominator = denominator >> 1;
+            }
+            //Умножаем числитель на 2 пока это возможно
+            while((exponent != 0) && !(fraction & 0x3FFFFFFFFFFFFFFF)) {
+                exponent--;
+                fraction = fraction << 1;
+            }
         }
+        else {
+            //Делим числитель на 2 пока это возможно
+            while((exponent != 0) && !(fraction & 0x1)) {
+                exponent++;
+                fraction = fraction >> 1;
+            }
+            //Умножаем знаменатель на 2 пока это возможно
+            while((exponent != 0) && !(denominator & 0x3FFFFFFFFFFFFFFF)) {
+                exponent++;
+                denominator = denominator << 1;
+            }
+        }
+        if(exponent != 0) {
+            throw std::overflow_error("Это число не может быть представлено в виде обыкновенной дроби без потери точности");
+        }
+        if(fraction & 0x8000000000000000) {
+            throw std::logic_error("Знаковый бит(63) не может быть равен 1. Ошибка в программе, не в числе");
+        }
+        numerator = static_cast<long>(fraction);
+
         if(bits >> 63) numerator *= -1;
 
         simplify(numerator, denominator);
-        pInNumerator = false;
     }
 
     FractionNum CreateFractionNum(long numerator_, long denominator_, const bool pInNumerator_) {
         if(denominator_ == 0) {
-            throw std::invalid_argument("denominator musn't be 0");
+            throw std::invalid_argument("Denominator musn't be 0");
         }
         if(denominator_ < 0) {
             numerator_ *= -1;
@@ -89,14 +95,9 @@ namespace libcnum {
     }
 
     FractionNum FractionNum::operator/ (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator;
-        const long new_denom = denominator * other.numerator;
-        bool pInNumerator_;
+        bool pInNumerator_ = false;
         if(pInNumerator) {
-            if(other.pInNumerator) {
-                pInNumerator_ = false;
-            }
-            else {
+            if(!other.pInNumerator) {
                 pInNumerator_ = true;
             }
         }
@@ -104,8 +105,9 @@ namespace libcnum {
             //Дальнейшие вычисления невозможны без потери точности
             return FractionNum(static_cast<double>(*this) / static_cast<double>(other));
         }
-        else pInNumerator_ = false;
 
+        const long new_num = numerator * other.denominator;
+        const long new_denom = denominator * other.numerator;
         return FractionNum(new_num, new_denom, pInNumerator_);
     }
 

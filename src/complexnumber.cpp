@@ -4,7 +4,7 @@
 
 
 namespace libcnum {
-    ComplexNumber::ComplexNumber(std::string num) {
+    ComplexNumber::ComplexNumber(const std::string &num) {
         bool pInPower = false;
 
         //Числитель/знаменатель коэффициэнта/степени
@@ -192,7 +192,7 @@ namespace libcnum {
         power = FractionNum(powerNumerator, powerDenominator, pInPower);
     }
 
-    ComplexNumber::ComplexNumber(const FractionNum coefficient_, const FractionNum power_) {
+    ComplexNumber::ComplexNumber(const FractionNum &coefficient_, const FractionNum &power_) {
         coefficient = coefficient_;
         power = power_;
     }

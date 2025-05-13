@@ -14,6 +14,7 @@ namespace libcnum {
         explicit FractionNum(long numerator_, long denominator_, bool pInNumerator_);
 
     public:
+        explicit FractionNum(double num);
         explicit operator double() const;
 
         FractionNum operator/ (const FractionNum& other) const;
@@ -24,7 +25,7 @@ namespace libcnum {
         friend std::ostream& operator<< (std::ostream& os, const FractionNum& num);
 
 
-        bool assert_test(long cNum, long cDen, bool pNum) const {
+        [[nodiscard]] bool assert_test(long cNum, long cDen, bool pNum) const {
             simplify(cNum, cDen);
             return numerator == cNum && denominator == cDen && pInNumerator == pNum;
         }
@@ -38,12 +39,12 @@ namespace libcnum {
         FractionNum power;
 
     public:
-        explicit ComplexNumber(FractionNum coefficient_, FractionNum power_);
-        explicit ComplexNumber(std::string num);
+        explicit ComplexNumber(const FractionNum &coefficient_, const FractionNum &power_);
+        explicit ComplexNumber(const std::string &num);
         explicit ComplexNumber();
 
         //Штука для тестов парсинга при компиляции
-        bool assert_test(const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) const {
+        [[nodiscard]] bool assert_test(const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) const {
             return coefficient.assert_test(cNum, cDen, false) && power.assert_test(pNum, pDen, pPow);
         }
     };
