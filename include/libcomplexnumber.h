@@ -3,6 +3,7 @@
 #include <ostream>
 
 namespace libcnum {
+    struct ComplexNumber;
     struct FractionNum {
     private:
         bool pInNumerator;
@@ -19,7 +20,9 @@ namespace libcnum {
 
         FractionNum operator/ (const FractionNum& other) const;
         FractionNum operator* (const FractionNum& other) const;
+        FractionNum operator* (const long& other) const;
         bool operator== (const FractionNum& other) const;
+        bool operator== (const long& other) const;
         FractionNum operator+ (const FractionNum& other) const;
         FractionNum operator- (const FractionNum& other) const;
         friend std::ostream& operator<< (std::ostream& os, const FractionNum& num);
@@ -30,6 +33,7 @@ namespace libcnum {
             return numerator == cNum && denominator == cDen && pInNumerator == pNum;
         }
         friend struct ComplexNumber;
+        friend std::ostream& operator<< (std::ostream& os, const ComplexNumber& num);
         friend FractionNum CreateFractionNum(long numerator_, long denominator_, bool pInNumerator_);
     };
 
@@ -43,6 +47,15 @@ namespace libcnum {
         explicit ComplexNumber(const std::string &num);
         explicit ComplexNumber();
 
+
+        ComplexNumber operator/ (const ComplexNumber& other) const;
+        ComplexNumber operator* (const ComplexNumber& other) const;
+        bool operator== (const ComplexNumber& other) const;
+        ComplexNumber operator+ (const ComplexNumber& other) const;
+        ComplexNumber operator- (const ComplexNumber& other) const;
+        [[nodiscard]] ComplexNumber pow(int power) const;
+        friend std::ostream& operator<< (std::ostream& os, const ComplexNumber& num);
+
         //Штука для тестов парсинга при компиляции
         [[nodiscard]] bool assert_test(const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) const {
             return coefficient.assert_test(cNum, cDen, false) && power.assert_test(pNum, pDen, pPow);
@@ -51,7 +64,7 @@ namespace libcnum {
 
     FractionNum CreateFractionNum(long numerator_, long denominator_, bool pInNumerator_);
 
-
+    ComplexNumber parseExpression(const std::string &expr);
 
 }
 #endif // LIBCOMPLEXNUMBER_H

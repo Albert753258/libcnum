@@ -22,7 +22,7 @@ namespace libcnum {
 
     FractionNum::FractionNum(double num): pInNumerator(false) {
         const auto bits = *reinterpret_cast<unsigned long long*>(&num);
-        static_assert(sizeof(double) == 8, "Для запуска не на 64-битной системе адаптируйте метод под вашу архитектуру процессора");
+        static_assert(sizeof(double) == 8, "This program works only on 64-bit architecture. You should rewrite FractionNum::FractionNum(double num) constructor");
         //11 бит, влезут в int
         int exponent = static_cast<int>((bits >> 52 & 0x7FF) - 1023);
         //Экспонента 0 - спецслучай для 0
@@ -62,10 +62,10 @@ namespace libcnum {
             }
         }
         if(exponent != 0) {
-            throw std::overflow_error("Это число не может быть представлено в виде обыкновенной дроби без потери точности");
+            throw std::overflow_error("This number is too big to fit in FractionNum without loosing it's presticion");
         }
         if(fraction & 0x8000000000000000) {
-            throw std::logic_error("Знаковый бит(63) не может быть равен 1. Ошибка в программе, не в числе");
+            throw std::logic_error("Unknown error, Sign bit(63th) mustn't be 1");
         }
         numerator = static_cast<long>(fraction);
 
@@ -121,8 +121,17 @@ namespace libcnum {
         return FractionNum(new_num, new_denom, pInNumerator || other.pInNumerator);
     }
 
+    FractionNum FractionNum::operator* (const long& other) const {
+        return FractionNum(numerator * other, denominator, pInNumerator);
+    }
+
     bool FractionNum::operator== (const FractionNum& other) const {
         return (numerator == other.numerator) && (denominator == other.denominator) && (pInNumerator == other.pInNumerator);
+    }
+
+    bool FractionNum::operator== (const long& other) const {
+        if (denominator != 1 || pInNumerator) return false;
+        return numerator == other;
     }
 
     FractionNum FractionNum::operator+ (const FractionNum& other) const {

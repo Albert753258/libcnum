@@ -127,4 +127,104 @@ namespace libcnum {
         coefficient = FractionNum();
         power = FractionNum();
     }
+
+    ComplexNumber ComplexNumber::operator/(const ComplexNumber &other) const {
+        const auto newCoef = coefficient / other.coefficient;
+        const auto newPower = power - other.power;
+        return ComplexNumber(newCoef, newPower);
+    }
+
+    ComplexNumber ComplexNumber::operator*(const ComplexNumber &other) const {
+        const auto newCoef = coefficient * other.coefficient;
+        const auto newPower = power + other.power;
+        return ComplexNumber(newCoef, newPower);
+
+    }
+
+    bool ComplexNumber::operator==(const ComplexNumber &other) const {
+        return coefficient == other.coefficient && power == other.power;
+    }
+    double roundTo3Dec(double var)
+    {
+        double value = static_cast<float>((int)(var * 100 + 0.5));
+        return value / 100;
+    }
+
+    ComplexNumber InitFromAlg(const double a, const double b) {
+        const double coefficient = roundTo3Dec(sqrt(a * a + b * b)),
+            power = roundTo3Dec(atan2(b, a));
+        return ComplexNumber(FractionNum(coefficient), FractionNum(power));
+    }
+
+    ComplexNumber ComplexNumber::operator+(const ComplexNumber &other) const {
+        if(power == other.power) {
+            return ComplexNumber(coefficient + other.coefficient, power);
+        }
+        if(power == (other.power * -1)) {
+            return ComplexNumber(coefficient - other.coefficient, power);
+        }
+        const auto coefficient1 = static_cast<double>(coefficient),
+            coefficient2 = static_cast<double>(other.coefficient),
+            power1 = static_cast<double>(power),
+            power2 = static_cast<double>(other.power);
+
+        const double a1 = coefficient1 * cos(power1),
+            a2 = coefficient2 * cos(power2),
+            b1 = coefficient1 * sin(power1),
+            b2 = coefficient2 * sin(power2);
+
+        return InitFromAlg(a1 + a2, b1 + b2);
+    }
+
+    ComplexNumber ComplexNumber::operator-(const ComplexNumber &other) const {
+        if(power == other.power) {
+            return ComplexNumber(coefficient - other.coefficient, power);
+        }
+        const auto coefficient1 = static_cast<double>(coefficient),
+            coefficient2 = static_cast<double>(other.coefficient),
+            power1 = static_cast<double>(power),
+            power2 = static_cast<double>(other.power);
+
+        const double a1 = coefficient1 * cos(power1),
+            a2 = coefficient2 * cos(power2),
+            b1 = coefficient1 * sin(power1),
+            b2 = coefficient2 * sin(power2);
+
+        return InitFromAlg(a1 - a2, b1 - b2);
+    }
+
+    ComplexNumber ComplexNumber::pow(int power) const {
+        ComplexNumber ret = *this;
+        if(power <= 0) {
+            throw std::logic_error("Not implemented");
+        }
+        while(power > 1) {
+            power--;
+            ret = ret * *this;
+        }
+        return ret;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const ComplexNumber& num) {
+        if(num.coefficient == 0) {
+            os << "0";
+            return os;
+        }
+
+        if(!(num.coefficient == 1)) {
+            os << num.coefficient;
+        }
+        os << "e^";
+        if(num.power.numerator != 1)
+            os << num.power.numerator;
+        os << "i";
+        if(num.power.pInNumerator) {
+            os << "P";
+        }
+        if(num.power.denominator != 1) {
+            os << "/" << num.power.denominator;
+        }
+
+        return os;
+    }
 }

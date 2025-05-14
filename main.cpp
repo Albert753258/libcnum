@@ -1,4 +1,3 @@
-#include <cmath>
 #include <iostream>
 
 #include "include/libcomplexnumber.h"
@@ -123,9 +122,9 @@ int main() {
     std::string str;
 
     while (true) {
-        std::cin >> str;
-        auto num = libcnum::ComplexNumber(str);
-        int i = 0;
+        std::cout << "Enter expression: ";
+        std::getline(std::cin, str);
+        std::cout << libcnum::parseExpression(str) << std::endl;
     }
     return 0;
 }
