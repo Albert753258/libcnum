@@ -4,191 +4,117 @@
 
 
 namespace libcnum {
-    ComplexNumber::ComplexNumber(const std::string &num) {
-        bool pInPower = false;
-
-        //Числитель/знаменатель коэффициэнта/степени
-        long coefficientNumerator;
-        long coefficientDenominator;
-        long powerNumerator;
-        long powerDenominator;
-
-        bool coefficientFound = false,
-            powerFound = false;
-
-
-        std::string tmp;
-        int curPos = 0;
-        char c;
-
-        //Буферное число
+    //Обработать часть (степень или коэффициэнт) комплексного числа
+    void parseSinglePart(const char breakSymbol, long& numerator, long& denominator, int& curPos, const std::string& num) {
         long long buf = 0;
-        //TODO проверить хватит ли типа char для хранения количества знаков после запятой
-        int afterDotCount = 0;
+        char afterDotCount = 0;
         bool dotFound = false,
             isMinus = false;
-
-#pragma region Считываем коэффициэнт
-        //1 часть парсинга - вытаскиваем коэффициэнт комплексного числа (идем до e)
         for(; curPos < num.length(); curPos++) {
-            c = num[curPos];
+            const char c = num[curPos];
             //Идем по строке до того, как найдем e или что-то кроме чисел
-            if(c == 'e') {
+            if(c == breakSymbol) {
                 if(dotFound) {
-                    coefficientDenominator = static_cast<long>(std::pow(10, afterDotCount));
-                    // ReSharper disable once CppLocalVariableMightNotBeInitialized
-                    //Если dotFound, то либо coefficientNumerator инициализирован, либо выкинут эксепшен
-                    coefficientNumerator = coefficientNumerator * coefficientDenominator + buf;
+                    if(afterDotCount == 0)
+                        throw std::invalid_argument("Invalid complex number format(" + num + "): after dot should be number, but found e");
+                    denominator = static_cast<long>(std::pow(10, afterDotCount));
+                    //Если dotFound, то либо numerator инициализирован, либо выкинут эксепшен
+                    numerator = numerator * denominator + buf;
                 }
                 else {
-                    if(afterDotCount == 0) {
-                        throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
-                    }
-                    coefficientNumerator = buf;
-                    coefficientDenominator = 1;
+                    if(afterDotCount == 0)
+                        numerator = 1;
+                    else
+                        numerator = buf;
+                    denominator = 1;
                 }
-                coefficientFound = true;
-                break;
+                curPos++;
+                if(isMinus)
+                    numerator *= -1;
+                return;
             }
             else if(c == '.') {
-                if(dotFound) {
-                    throw std::invalid_argument("Invalid complex number format: 2 точки в коэффициэнте");
-                }
-                if(afterDotCount == 0) {
-                    throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
-                }
+                if(dotFound)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): 2 dots in one number");
+                if(afterDotCount == 0)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): number cannot start with dot");
+
                 afterDotCount = 0;
                 dotFound = true;
-                coefficientNumerator = buf;
+                numerator = buf;
                 buf = 0;
                 //Чтоб в буфер не ушла точка
                 continue;
             }
             else if(c == '-') {
-                if(dotFound) {
-                    throw std::invalid_argument("Invalid complex number format: минус после точки и до e");
-                }
-                if(isMinus) {
-                    throw std::invalid_argument("Invalid complex number format: 2 минуса в коэффициэнте");
-                }
+                if(dotFound)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): minus cannot be after dot");
+                if(isMinus)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): 2 minuses in one number");
+
                 isMinus = true;
                 //Чтоб в буфер не ушел минус
                 continue;
             }
-            //c - не число, минус или точка
-            else if(c < '0' or c > '9') {
-                throw std::invalid_argument("Invalid complex number format: лишние символы в коэффициэнте");
-            }
-            //TODO проверка переполнения как в коде gcc
+            else if(c < '0' or c > '9')
+                throw std::invalid_argument("Invalid complex number format(" + num + "): invalid symbol " + c);
+
             buf *= 10;
             buf += c - '0';
             afterDotCount++;
         }
-        //Значит в числе нету e - ошибка
-        if(!coefficientFound) throw std::invalid_argument("Invalid complex number format: нет e");
-        curPos++;
+        throw std::invalid_argument("Invalid complex number format(" + num + "): missing " + breakSymbol);
+    }
 
-        if(isMinus) coefficientNumerator *= -1;
+    ComplexNumber::ComplexNumber(const std::string &num) {
+        bool pInPower = false;
 
-#pragma endregion
+        //Числитель/знаменатель коэффициэнта/степени
+        long coefficientNumerator = 0,
+            coefficientDenominator = 0,
+            powerNumerator = 0,
+            powerDenominator = 0;
+
+        int curPos = 0;
+        char c;
+        //1 часть парсинга - вытаскиваем коэффициэнт комплексного числа (идем до e)
+        parseSinglePart('e', coefficientNumerator, coefficientDenominator, curPos, num);
 
 #pragma region Проверка наличия ^ после e
         if(curPos < num.length()) {
             c = num[curPos];
             if(c != '^') {
-                throw std::invalid_argument("Invalid complex number format: нет ^");
+                throw std::invalid_argument("Invalid complex number format(" + num + "): ^ should be after e, found " + c);
             }
         }
         else {
-            throw std::invalid_argument("Invalid complex number format: нет ^ после e");
+            throw std::invalid_argument("Invalid complex number format(" + num + "): ^ should be after e");
         }
         curPos++;
 #pragma endregion
 
-#pragma region Считываем коэффициэнт
-        dotFound = false;
-        isMinus = false;
-        buf = 0;
-        afterDotCount = 0;
-        //2 часть парсинга - идем до i
-        for(; curPos < num.length(); curPos++) {
-            c = num[curPos];
-            //Идем по строке до того, как найдем e или что-то кроме чисел
-            //Если встретили точку - значит парсим десятичную дробь как обыкновенную
-            if(c == 'i') {
-                if(dotFound) {
-                    powerDenominator = static_cast<long>(std::pow(10, afterDotCount));
-                    // ReSharper disable once CppLocalVariableMightNotBeInitialized
-                    //Если dotFound, то либо powerNumerator инициализирован, либо выкинут эксепшен
-                    powerNumerator = powerNumerator * powerDenominator + buf;
-                }
-                else {
-                    if(afterDotCount == 0) {
-                        throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
-                    }
-                    powerNumerator = buf;
-                    powerDenominator = 1;
-                }
-                powerFound = true;
-                break;
-            }
-            else if(c == '.') {
-                if(dotFound) {
-                    throw std::invalid_argument("Invalid complex number format: 2 точки в степене");
-                }
-                if(afterDotCount == 0) {
-                    throw std::invalid_argument("Invalid complex number format: не введен коэффициэнт");
-                }
-                afterDotCount = 0;
-                dotFound = true;
-                powerNumerator = buf;
-                buf = 0;
-                //Чтоб в буфер не ушла точка
-                continue;
-            }
-            else if(c == '-') {
-                if(dotFound) {
-                    throw std::invalid_argument("Invalid complex number format: минус после точки и до i");
-                }
-                if(isMinus) {
-                    throw std::invalid_argument("Invalid complex number format: 2 минуса в степени");
-                }
-                isMinus = true;
-                //Чтоб в буфер не ушел минус
-                continue;
-            }
-            else if(c < '0' or c > '9') {
-                throw std::invalid_argument("Invalid complex number format: проверьте степень числа");
-            }
-            //TODO проверка переполнения как в коде gcc
-            buf *= 10;
-            buf += c - '0';
-            afterDotCount++;
-        }
-        //Значит в числе нету i - ошибка
-        if(!powerFound) throw std::invalid_argument("Invalid complex number format: отсутствует i");
+        //2 часть парсинга - вытаскиваем степень комплексного числа (идем до i)
+        parseSinglePart('i', powerNumerator, powerDenominator, curPos, num);
 
-        if(isMinus) powerNumerator *= -1;
-        curPos++;
-#pragma endregion
 
-#pragma region Проверяем наличие P
+#pragma region Проверяем наличие P после i
         //Проверяем есть ли P в степени. Проверяем является ли степень дробью
         for(; curPos < num.length(); curPos++) {
             c = num[curPos];
             if(c == 'P') {
-                if(pInPower) throw std::invalid_argument("Invalid complex number format: в степени может быть только 1 P");
+                if(pInPower)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): after P should be nothing, found" + c);
                 pInPower = true;
             }
             else {
-                throw std::invalid_argument("Invalid complex number format: некорректный символ после i");
+                if(pInPower)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): invalid symbol after P: " + c);
+                throw std::invalid_argument("Invalid complex number format(" + num + "): invalid symbol after i: " + c);
             }
         }
 #pragma endregion
 
-        // ReSharper disable once CppLocalVariableMightNotBeInitialized
         coefficient = FractionNum(coefficientNumerator, coefficientDenominator, false);
-        // ReSharper disable once CppLocalVariableMightNotBeInitialized
         power = FractionNum(powerNumerator, powerDenominator, pInPower);
     }
 

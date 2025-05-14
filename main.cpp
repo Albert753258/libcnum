@@ -44,10 +44,13 @@
         runComplexNumberParsingTestPositive("11.12e^44iP", 1112, 100, 44, 1, true);
         runComplexNumberParsingTestPositive("11.12e^44.5i", 1112, 100, 445, 10, false);
         runComplexNumberParsingTestPositive("11.12e^44.5iP", 1112, 100, 445, 10, true);
+        runComplexNumberParsingTestPositive("e^44.5iP", 1, 1, 445, 10, true);
+        runComplexNumberParsingTestPositive("-e^44.5iP", -1, 1, 445, 10, true);
+        runComplexNumberParsingTestPositive("e^iP", 1, 1, 1, 1, true);
+        runComplexNumberParsingTestPositive("e^-iP", 1, 1, -1, 1, true);
     #pragma endregion
 
     #pragma region тесты на парсинг некорректных чисел
-        //runComplexNumbeTestNegative("11e^44");
         runComplexNumbeTestNegative("11e^44P");
         runComplexNumbeTestNegative("11e^44.5");
         runComplexNumbeTestNegative("11e^44.5P");
