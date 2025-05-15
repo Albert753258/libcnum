@@ -25,9 +25,8 @@ namespace libcnum {
             try {
                 n1 = ComplexNumber(num1);
             }
-            catch (...) {
-                //TODO ошибка глушится
-                throw std::invalid_argument("Unable to parse first number");
+            catch (const std::exception& err) {
+                throw std::invalid_argument(std::string("Unable to parse first number: ") + err.what());
             }
             curPos++;
             if(curPos < expr.size()) {
@@ -79,7 +78,7 @@ namespace libcnum {
                 num1 += c;
             }
             if(!num1Found)
-                throw std::invalid_argument("Unable to split expression");
+                throw std::invalid_argument("Unable to find thirst operand");
             curPos++;
             if(curPos < expr.size()) {
                 const char c = expr[curPos];
@@ -110,16 +109,14 @@ namespace libcnum {
             try {
                 n1 = ComplexNumber(num1);
             }
-            catch (...) {
-                //TODO ошибка глушится
-                throw std::invalid_argument("Unable to parse first number");
+            catch (const std::exception& err) {
+                throw std::invalid_argument(std::string("Unable to parse first number: ") + err.what());
             }
             try {
                 n2 = ComplexNumber(num2);
             }
-            catch (...) {
-                //TODO ошибка глушится
-                throw std::invalid_argument("Unable to parse second number");
+            catch (const std::exception& err) {
+                throw std::invalid_argument(std::string("Unable to parse second number: ") + err.what());
             }
             switch (oper) {
                 case '-':
@@ -132,28 +129,6 @@ namespace libcnum {
                     return n1 / n2;
                 default:
                     throw std::invalid_argument("Invalid operand: " + oper);
-            }
-        }
-
-        std::vector<std::string> tokens;
-        std::string token;
-        std::istringstream tokenStream(expr);
-
-        while (std::getline(tokenStream, token, ' ')) {
-            tokens.push_back(token);
-        }
-
-        ComplexNumber num1, num2;
-        int start = 0;
-        bool firstFound = false,
-            secondFound = false;
-        for(int i = 0; i < expr.size(); i++) {
-            char c = expr[i];
-            if(c == ' ') {
-
-            }
-            if(!firstFound) {
-
             }
         }
     }

@@ -53,7 +53,7 @@ namespace libcnum {
         bool operator== (const ComplexNumber& other) const;
         ComplexNumber operator+ (const ComplexNumber& other) const;
         ComplexNumber operator- (const ComplexNumber& other) const;
-        [[nodiscard]] ComplexNumber pow(int power) const;
+        [[nodiscard]] ComplexNumber pow(long power) const;
         friend std::ostream& operator<< (std::ostream& os, const ComplexNumber& num);
 
         //Штука для тестов парсинга при компиляции

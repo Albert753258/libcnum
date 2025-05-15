@@ -193,7 +193,7 @@ namespace libcnum {
         return InitFromAlg(a1 - a2, b1 - b2);
     }
 
-    ComplexNumber ComplexNumber::pow(int power) const {
+    ComplexNumber ComplexNumber::pow(long power) const {
         ComplexNumber ret = *this;
         if(power <= 0) {
             throw std::logic_error("Not implemented");

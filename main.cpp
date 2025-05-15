@@ -124,7 +124,12 @@ int main() {
     while (true) {
         std::cout << "Enter expression: ";
         std::getline(std::cin, str);
-        std::cout << libcnum::parseExpression(str) << std::endl;
+        try {
+            std::cout << libcnum::parseExpression(str) << std::endl;
+        }
+        catch (const std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
     }
     return 0;
 }
