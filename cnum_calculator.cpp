@@ -3,33 +3,43 @@
 #include "include/libcomplexnumber.h"
 
 
-const std::string helpMessage = R"(USAGE: cnum_calculator [OPTION] "<complex number expression>"
-Currently this program can make only one operation for one time
+const std::string helpMessage = R"(Usage: cnum_calculator [OPTION]... "EXPRESSION"
+Perform a single operation on complex numbers and print result in specified format.
+
 Options:
-  -f=format     set output format to format. Valid formats are algebraic, triganometric, exponential
-  -a            equivalent to -f=algebraic
-  -t            equivalent to -f=triganometric
-  -e            default, equivalent to -f=exponential
-  -h, --help    show this message
+  -a, --algebraic       display result in algebraic form (a + bi)
+  -t, --trigonometric   display result in trigonometric form (r(cosθ + i·sinθ))
+  -e, --exponential     display result in exponential form (re^θiP, default)
+  -h, --help            display this help and exit
+  --version             output version information and exit
 
-Complex number expressions should be in folowing format:
-<complex number 1> <operator> <complex number 1> - calculate expression with to complex numbers.
-    Space required before and after opertor.
-    Supported operators are +, -, *, /
-(<complex number>)^<power> - pow complex number to power. Power can be any natural number greater than 0
+EXPRESSION format:
+  <num1> <op> <num2>    Perform single operation (+, -, *, /)
+  (<num>)^<power>       Raise complex number to a natural power
 
-Complex numbers should be in folowing format:
-<coefficient>e^<power>i<P>
-    Both coefficient and power can be integer or decimal/common fraction
-    coefficient, power and P aren't required
+  Notes:
+  - Spaces around <op> are mandatory.
+  - <power> must be a positive integer.
 
-Ecamples of valid expressions:
-2e^1/4iP + 3e^1/4iP
-e^0.5iP + e^-0.5iP
-4e^1/3iP - 2e^1/3iP
-2e^1/6iP * 3e^1/3iP
-6e^5/6iP / 2e^1/3iP
-(2e^0.25iP)^2
+COMPLEX NUMBER format:
+  [<coeff>]e^[<power>]i[P]
+
+  Where:
+  - <coeff>             real coefficient (integer/decimal/fraction)
+  - <power>             exponent angle (integer/decimal/fraction)
+  - P                   'pi' multiplier
+  All components are optional
+
+Examples:
+  cnum_calculator -a "2e^1/4iP + 3e^1/4iP"
+  cnum_calculator -t "4e^1/3iP - 2e^1/3iP"
+  cnum_calculator -e "6e^5/6iP / 2e^1/3iP"
+  cnum_calculator --algebraic "e^0.5iP + e^-0.5iP"
+  cnum_calculator --trigonometric "2e^1/6iP * 3e^1/3iP"
+  cnum_calculator --exponential "(2e^0.25iP)^2"
+    )";
+const std::string versionMessage = R"(cnum_calculator 0.1
+Made by Albert753258
     )";
 
 int main(const int argc, char *argv[]) {
@@ -45,15 +55,19 @@ int main(const int argc, char *argv[]) {
             std::cout << helpMessage << std::endl;
             return 0;
         }
-        if(arg == "-a" || arg == "-f=algebraic") {
+        if(arg == "--version") {
+            std::cout << versionMessage << std::endl;
+            return 0;
+        }
+        if(arg == "-a" || arg == "--algebraic") {
             format = 1;
             break;
         }
-        if(arg == "-t" || arg == "-f=triganometric") {
+        if(arg == "-t" || arg == "--trigonometric") {
             format = 2;
             break;
         }
-        if(arg == "-e" || arg == "-f=exponential") {
+        if(arg == "-e" || arg == "--exponential") {
             format = 3;
             break;
         }
