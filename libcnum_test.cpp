@@ -28,6 +28,9 @@ void runComplexNumbeTestNegative(const std::string &num) {
 int main() {
 #pragma region тесты на парсинг корректных чисел
 
+    runComplexNumberParsingTestPositive("1/2e^1/2i", 1, 2, 1, 2, false);
+    runComplexNumberParsingTestPositive("1/2e^1/2iP", 1, 2, 1, 2, true);
+    runComplexNumberParsingTestPositive("1/2e^0.5iP", 1, 2, 1, 2, true);
     runComplexNumberParsingTestPositive("11e^44i", 11, 1, 44, 1, false);
     runComplexNumberParsingTestPositive("11e^44iP", 11, 1, 44, 1, true);
     runComplexNumberParsingTestPositive("11e^44.5i", 11, 1, 445, 10, false);
@@ -49,6 +52,14 @@ int main() {
 #pragma endregion
 
 #pragma region тесты на парсинг некорректных чисел
+    runComplexNumbeTestNegative("1/2e^1/2Pi");
+    runComplexNumbeTestNegative("1/2.5e^1/2Pi");
+    runComplexNumbeTestNegative("1/2e^1/2");
+    runComplexNumbeTestNegative("1/2e^i1/2");
+    runComplexNumbeTestNegative("/2e^i1/2");
+    runComplexNumbeTestNegative("1/0e^i1/2");
+    runComplexNumbeTestNegative("1/e^1/2");
+    runComplexNumbeTestNegative("/e^1/2");
     runComplexNumbeTestNegative("11e^44P");
     runComplexNumbeTestNegative("11e^44.5");
     runComplexNumbeTestNegative("11e^44.5P");

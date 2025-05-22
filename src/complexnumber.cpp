@@ -9,24 +9,30 @@ namespace libcnum {
         long long buf = 0;
         char afterDotCount = 0;
         bool dotFound = false,
-            isMinus = false;
+            isMinus = false,
+            isFraction = false;
         for(; curPos < num.length(); curPos++) {
             const char c = num[curPos];
             //Идем по строке до того, как найдем e или что-то кроме чисел
             if(c == breakSymbol) {
-                if(dotFound) {
-                    if(afterDotCount == 0)
-                        throw std::invalid_argument("Invalid complex number format(" + num + "): after dot should be number, but found e");
-                    denominator = static_cast<long>(std::pow(10, afterDotCount));
-                    //Если dotFound, то либо numerator инициализирован, либо выкинут эксепшен
-                    numerator = numerator * denominator + buf;
+                if(isFraction) {
+                    denominator = buf;
                 }
-                else {
-                    if(afterDotCount == 0)
-                        numerator = 1;
-                    else
-                        numerator = buf;
-                    denominator = 1;
+                else{
+                    if(dotFound) {
+                        if(afterDotCount == 0)
+                            throw std::invalid_argument("Invalid complex number format(" + num + "): after dot should be number, but found e");
+                        denominator = static_cast<long>(std::pow(10, afterDotCount));
+                        //Если dotFound, то либо numerator инициализирован, либо выкинут эксепшен
+                        numerator = numerator * denominator + buf;
+                    }
+                    else {
+                        if(afterDotCount == 0)
+                            numerator = 1;
+                        else
+                            numerator = buf;
+                        denominator = 1;
+                    }
                 }
                 curPos++;
                 if(isMinus)
@@ -38,6 +44,8 @@ namespace libcnum {
                     throw std::invalid_argument("Invalid complex number format(" + num + "): 2 dots in one number");
                 if(afterDotCount == 0)
                     throw std::invalid_argument("Invalid complex number format(" + num + "): number cannot start with dot");
+                if(isFraction)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): fraction cannot contain dot");
 
                 afterDotCount = 0;
                 dotFound = true;
@@ -51,9 +59,21 @@ namespace libcnum {
                     throw std::invalid_argument("Invalid complex number format(" + num + "): minus cannot be after dot");
                 if(isMinus)
                     throw std::invalid_argument("Invalid complex number format(" + num + "): 2 minuses in one number");
+                if(isFraction)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): minus cannot be after /");
 
                 isMinus = true;
                 //Чтоб в буфер не ушел минус
+                continue;
+            }
+            else if(c == '/') {
+                if(dotFound)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): fraction cannot contain dot");
+                if(isFraction)
+                    throw std::invalid_argument("Invalid complex number format(" + num + "): 2 / in one number");
+                isFraction = true;
+                numerator = buf;
+                buf = 0;
                 continue;
             }
             else if(c < '0' or c > '9')
