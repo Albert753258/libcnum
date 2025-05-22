@@ -23,8 +23,10 @@ namespace libcnum {
         FractionNum operator* (const long& other) const;
         bool operator== (const FractionNum& other) const;
         bool operator== (const long& other) const;
+        bool operator!= (const long& other) const;
         FractionNum operator+ (const FractionNum& other) const;
         FractionNum operator- (const FractionNum& other) const;
+        [[nodiscard]] std::string ToString() const;
         friend std::ostream& operator<< (std::ostream& os, const FractionNum& num);
 
 
@@ -56,6 +58,9 @@ namespace libcnum {
         [[nodiscard]] ComplexNumber pow(long power) const;
         friend std::ostream& operator<< (std::ostream& os, const ComplexNumber& num);
 
+        [[nodiscard]] std::string ToAlgebraic() const;
+        [[nodiscard]] std::string ToTriganometric() const;
+
         //Штука для тестов парсинга при компиляции
         [[nodiscard]] bool assert_test(const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) const {
             return coefficient.assert_test(cNum, cDen, false) && power.assert_test(pNum, pDen, pPow);
@@ -64,7 +69,7 @@ namespace libcnum {
 
     FractionNum CreateFractionNum(long numerator_, long denominator_, bool pInNumerator_);
 
-    ComplexNumber parseExpression(const std::string &expr);
+    ComplexNumber calculateExpression(const std::string &expr);
 
 }
 #endif // LIBCOMPLEXNUMBER_H

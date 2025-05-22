@@ -14,6 +14,12 @@ namespace libcnum {
     FractionNum::FractionNum(): pInNumerator(false), numerator(1), denominator(1) { }
 
     FractionNum::FractionNum(long numerator_, long denominator_, bool pInNumerator_) {
+        if(numerator_ == 0) {
+            numerator = 0;
+            denominator = 1;
+            pInNumerator_ = false;
+            return;
+        }
         simplify(numerator_, denominator_);
         numerator = numerator_;
         denominator = denominator_;
@@ -134,6 +140,11 @@ namespace libcnum {
         return numerator == other;
     }
 
+    bool FractionNum::operator!= (const long& other) const {
+        if (denominator != 1 || pInNumerator) return true;
+        return numerator != other;
+    }
+
     FractionNum FractionNum::operator+ (const FractionNum& other) const {
         const long new_num = numerator * other.denominator + other.numerator * denominator;
         const long new_denom = denominator * other.denominator;
@@ -155,13 +166,27 @@ namespace libcnum {
     }
 
     std::ostream& operator<<(std::ostream& os, const FractionNum& num) {
-        os << num.numerator;
-        if(num.pInNumerator) {
-            os << "P";
-        }
-        if(num.denominator != 1) {
-            os << '/' << num.denominator;
-        }
+        os << num.ToString();
         return os;
+    }
+
+    std::string FractionNum::ToString() const{
+        if(numerator == 0) {
+            return "";
+        }
+        std::string ret;
+        if(pInNumerator) {
+            if(numerator != 1) {
+                ret += std::to_string(numerator);
+            }
+            ret += "P";
+        }
+        else {
+            ret += std::to_string(numerator);
+        }
+        if(denominator != 1) {
+            ret += "/" + std::to_string(denominator);
+        }
+        return ret;
     }
 }

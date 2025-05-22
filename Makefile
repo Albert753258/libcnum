@@ -3,7 +3,7 @@ libcnum: complexnumber.o expressionparser.o fractionnum.o
 	g++ -shared -fPIC $^ -o libcnum.so
 
 cnum_calculator: cnum_calculator.o libcnum libcnum_test
-	g++ cnum_calculator.o -L. -lcnum -o cnum_calculator
+	g++ cnum_calculator.o -L. -lcnum -Wl,-rpath='$$ORIGIN' -o cnum_calculator
 
 libcnum_test: libcnum_test.o libcnum
 	g++ libcnum_test.o -L. -lcnum -Wl,-rpath='$$ORIGIN' -o libcnum_test

@@ -1,2 +1,10 @@
 /cmake-build-debug
 .idea
+/libcnum_test
+/libcnum.so
+/fractionnum.o
+/expressionparser.o
+/complexnumber.o
+/cnum_calculator.o
+/libcnum_test.o
+/cnum_calculator

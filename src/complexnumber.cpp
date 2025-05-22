@@ -230,21 +230,51 @@ namespace libcnum {
             os << "0";
             return os;
         }
+        if(num.power == 0) {
+            os << "1";
+            return os;
+        }
 
-        if(!(num.coefficient == 1)) {
+        if(num.coefficient != 1) {
             os << num.coefficient;
         }
         os << "e^";
-        if(num.power.numerator != 1)
+
+        if(num.power.numerator != 1 || num.power.denominator != 1) {
             os << num.power.numerator;
-        os << "i";
-        if(num.power.pInNumerator) {
-            os << "P";
         }
         if(num.power.denominator != 1) {
             os << "/" << num.power.denominator;
         }
+        os << "i";
+        if(num.power.pInNumerator) {
+            os << "P";
+        }
 
         return os;
+    }
+
+    std::string ComplexNumber::ToAlgebraic() const {
+        constexpr double accuracy = 0.0000001;
+        const double coefficient1 = static_cast<double>(coefficient),
+            power1 = static_cast<double>(power),
+            a = coefficient1 * cos(power1),
+            b = coefficient1 * sin(power1);
+        if(std::abs(a) > accuracy) {
+            if(std::abs(b) > accuracy) {
+                return std::to_string(a) + " + " + std::to_string(b) + "i";
+            }
+            else {
+                return std::to_string(a);
+            }
+        }
+        else if(std::abs(b) > accuracy) {
+            return std::to_string(b) + "i";
+        }
+        return "0";
+    }
+
+    std::string ComplexNumber::ToTriganometric() const {
+        return coefficient.ToString() + "(cos(" + power.ToString() + ") + isin(" + power.ToString() + "))";
     }
 }
