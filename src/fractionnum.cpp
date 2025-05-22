@@ -14,11 +14,11 @@ namespace libcnum {
 #pragma region Конструкторы, фабричный метод
     FractionNum::FractionNum(): pInNumerator(false), numerator(1), denominator(1) { }
 
-    FractionNum::FractionNum(long numerator_, long denominator_, bool pInNumerator_) {
+    FractionNum::FractionNum(long numerator_, long denominator_, const bool pInNumerator_) {
         if(numerator_ == 0) {
             numerator = 0;
             denominator = 1;
-            pInNumerator_ = false;
+            pInNumerator = false;
             return;
         }
         simplify(numerator_, denominator_);

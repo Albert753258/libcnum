@@ -58,6 +58,7 @@ namespace libcnum {
         [[nodiscard]] ComplexNumber pow(long power) const;
         friend std::ostream& operator<< (std::ostream& os, const ComplexNumber& num);
 
+        [[nodiscard]] std::string ToExponential() const;
         [[nodiscard]] std::string ToAlgebraic() const;
         [[nodiscard]] std::string ToTriganometric() const;
 

@@ -8,6 +8,18 @@ namespace libcnum {
     void parseSinglePart(char breakSymbol, long& numerator, long& denominator, int& curPos, const std::string& num);
     ComplexNumber InitFromAlg(double a, double b);
 
+    ComplexNumber ComplexNumber::pow(long power) const {
+        ComplexNumber ret = *this;
+        if(power <= 0) {
+            throw std::logic_error("Not implemented");
+        }
+        while(power > 1) {
+            power--;
+            ret = ret * *this;
+        }
+        return ret;
+    }
+
 #pragma region Конструкторы
     ComplexNumber::ComplexNumber(const std::string &num) {
         bool pInPower = false;
@@ -79,6 +91,7 @@ namespace libcnum {
     }
 
     bool ComplexNumber::operator==(const ComplexNumber &other) const {
+        if(coefficient == 0 && other.coefficient == 0) return true;
         return coefficient == other.coefficient && power == other.power;
     }
 
@@ -120,46 +133,38 @@ namespace libcnum {
     }
 #pragma endregion
 
-    ComplexNumber ComplexNumber::pow(long power) const {
-        ComplexNumber ret = *this;
-        if(power <= 0) {
-            throw std::logic_error("Not implemented");
-        }
-        while(power > 1) {
-            power--;
-            ret = ret * *this;
-        }
-        return ret;
-    }
-
 #pragma region Вывод в консоль и форматирование
     std::ostream& operator<<(std::ostream& os, const ComplexNumber& num) {
-        if(num.coefficient == 0) {
-            os << "0";
-            return os;
-        }
-        if(num.power == 0) {
-            os << "1";
-            return os;
-        }
-
-        if(num.coefficient != 1) {
-            os << num.coefficient;
-        }
-        os << "e^";
-
-        if(num.power.numerator != 1 || num.power.denominator != 1) {
-            os << num.power.numerator;
-        }
-        if(num.power.denominator != 1) {
-            os << "/" << num.power.denominator;
-        }
-        os << "i";
-        if(num.power.pInNumerator) {
-            os << "P";
-        }
+        os << num.ToExponential();
 
         return os;
+    }
+
+    std::string ComplexNumber::ToExponential() const {
+        if(coefficient == 0) {
+            return "0";
+        }
+        if(power == 0) {
+            return "1";
+        }
+
+        std::string ret;
+        if(coefficient != 1) {
+            ret += coefficient.ToString();
+        }
+        ret += "e^";
+
+        if(power.numerator != 1 || power.denominator != 1) {
+            ret += std::to_string(power.numerator);
+            if(power.denominator != 1) {
+                ret += "/" + std::to_string(power.denominator);
+            }
+        }
+        ret += "i";
+        if(power.pInNumerator) {
+            ret += "P";
+        }
+        return ret;
     }
 
     std::string ComplexNumber::ToAlgebraic() const {
