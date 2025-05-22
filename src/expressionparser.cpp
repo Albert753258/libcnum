@@ -47,7 +47,7 @@ namespace libcnum {
         long buf = 0;
 
         for(; curPos < expr.length(); curPos++) {
-            char c = expr[curPos];
+            const char c = expr[curPos];
             if(c < '0' or c > '9') {
                 throw std::invalid_argument(std::string("invalid symbol in power: ") + c);
             }
@@ -124,6 +124,7 @@ namespace libcnum {
                 return n1 * n2;
             case '/':
                 return n1 / n2;
+            // ReSharper disable once CppDFAUnreachableCode
             default:
                 throw std::invalid_argument(std::string("invalid operand: ") + oper);
         }

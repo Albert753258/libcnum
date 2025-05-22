@@ -6,11 +6,12 @@
 
 namespace libcnum {
     void FractionNum::simplify(long& numerator_, long& denominator_) {
-        const long gcd_val = std::gcd(numerator_, denominator_);
-        numerator_ /= gcd_val;
-        denominator_ /= gcd_val;
+        const long gcdVal = std::gcd(numerator_, denominator_);
+        numerator_ /= gcdVal;
+        denominator_ /= gcdVal;
     }
 
+#pragma region Конструкторы, фабричный метод
     FractionNum::FractionNum(): pInNumerator(false), numerator(1), denominator(1) { }
 
     FractionNum::FractionNum(long numerator_, long denominator_, bool pInNumerator_) {
@@ -90,6 +91,7 @@ namespace libcnum {
         }
         return FractionNum(numerator_, denominator_, pInNumerator_);
     }
+#pragma endregion
 
     //Вычислить дробь в десятичный double
     FractionNum::operator double() const {
@@ -100,39 +102,10 @@ namespace libcnum {
         return numerator_ / static_cast<double>(denominator);
     }
 
-    FractionNum FractionNum::operator/ (const FractionNum& other) const {
-        bool pInNumerator_ = false;
-        if(pInNumerator) {
-            if(!other.pInNumerator) {
-                pInNumerator_ = true;
-            }
-        }
-        else if(other.pInNumerator) {
-            //Дальнейшие вычисления невозможны без потери точности
-            return FractionNum(static_cast<double>(*this) / static_cast<double>(other));
-        }
-
-        const long new_num = numerator * other.denominator;
-        const long new_denom = denominator * other.numerator;
-        return FractionNum(new_num, new_denom, pInNumerator_);
-    }
-
-    FractionNum FractionNum::operator* (const FractionNum& other) const {
-        const long new_num = numerator * other.numerator;
-        const long new_denom = denominator * other.denominator;
-        if(pInNumerator && other.pInNumerator) {
-            //Дальнейшие вычисления невозможны без потери точности
-            return FractionNum(static_cast<double>(*this) * static_cast<double>(other));
-        }
-        return FractionNum(new_num, new_denom, pInNumerator || other.pInNumerator);
-    }
-
-    FractionNum FractionNum::operator* (const long& other) const {
-        return FractionNum(numerator * other, denominator, pInNumerator);
-    }
-
     bool FractionNum::operator== (const FractionNum& other) const {
-        return (numerator == other.numerator) && (denominator == other.denominator) && (pInNumerator == other.pInNumerator);
+        return (numerator == other.numerator)
+        && (denominator == other.denominator)
+        && (pInNumerator == other.pInNumerator);
     }
 
     bool FractionNum::operator== (const long& other) const {
@@ -145,25 +118,50 @@ namespace libcnum {
         return numerator != other;
     }
 
+#pragma region Математические операторы
+
+    FractionNum FractionNum::operator/ (const FractionNum& other) const {
+        if(!pInNumerator && other.pInNumerator) {
+            //Дальнейшие вычисления невозможны без потери точности
+            return FractionNum(static_cast<double>(*this) / static_cast<double>(other));
+        }
+        return FractionNum(numerator * other.denominator, denominator * other.numerator, pInNumerator && !other.pInNumerator);
+    }
+
+    FractionNum FractionNum::operator* (const FractionNum& other) const {
+        if(pInNumerator && other.pInNumerator) {
+            //Дальнейшие вычисления невозможны без потери точности
+            return FractionNum(static_cast<double>(*this) * static_cast<double>(other));
+        }
+        return FractionNum(numerator * other.numerator, denominator * other.denominator, pInNumerator || other.pInNumerator);
+    }
+
+    FractionNum FractionNum::operator* (const long& other) const {
+        return FractionNum(numerator * other, denominator, pInNumerator);
+    }
+
     FractionNum FractionNum::operator+ (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator + other.numerator * denominator;
-        const long new_denom = denominator * other.denominator;
         if(pInNumerator != other.pInNumerator) {
             //Дальнейшие вычисления невозможны без потери точности
             return FractionNum(static_cast<double>(*this) + static_cast<double>(other));
         }
-        return FractionNum(new_num, new_denom, pInNumerator);
+        return FractionNum(
+            numerator * other.denominator + other.numerator * denominator,
+            denominator * other.denominator,
+            pInNumerator);
     }
 
     FractionNum FractionNum::operator- (const FractionNum& other) const {
-        const long new_num = numerator * other.denominator - other.numerator * denominator;
-        const long new_denom = denominator * other.denominator;
         if(pInNumerator != other.pInNumerator) {
             //Дальнейшие вычисления невозможны без потери точности
             return FractionNum(static_cast<double>(*this) - static_cast<double>(other));
         }
-        return FractionNum(new_num, new_denom, pInNumerator);
+        return FractionNum(
+            numerator * other.denominator - other.numerator * denominator,
+            denominator * other.denominator,
+            pInNumerator);
     }
+#pragma endregion
 
     std::ostream& operator<<(std::ostream& os, const FractionNum& num) {
         os << num.ToString();

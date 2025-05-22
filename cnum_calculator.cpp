@@ -12,6 +12,24 @@ Options:
   -e            default, equivalent to -f=exponential
   -h, --help    show this message
 
+Complex number expressions should be in folowing format:
+<complex number 1> <operator> <complex number 1> - calculate expression with to complex numbers.
+    Space required before and after opertor.
+    Supported operators are +, -, *, /
+(<complex number>)^<power> - pow complex number to power. Power can be any natural number greater than 0
+
+Complex numbers should be in folowing format:
+<coefficient>e^<power>i<P>
+    Both coefficient and power can be integer or decimal/common fraction
+    coefficient, power and P aren't required
+
+Ecamples of valid expressions:
+2e^1/4iP + 3e^1/4iP
+e^0.5iP + e^-0.5iP
+4e^1/3iP - 2e^1/3iP
+2e^1/6iP * 3e^1/3iP
+6e^5/6iP / 2e^1/3iP
+(2e^0.25iP)^2
     )";
 
 int main(const int argc, char *argv[]) {
@@ -48,7 +66,7 @@ int main(const int argc, char *argv[]) {
     else curPos = 2;
 
     try {
-        auto res = libcnum::calculateExpression(argv[curPos]);
+        const auto res = libcnum::calculateExpression(argv[curPos]);
         if(format == 1) {
             std::cout << res.ToAlgebraic() << std::endl;
         }

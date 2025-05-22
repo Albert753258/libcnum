@@ -30,7 +30,7 @@ namespace libcnum {
         friend std::ostream& operator<< (std::ostream& os, const FractionNum& num);
 
 
-        [[nodiscard]] bool assert_test(long cNum, long cDen, bool pNum) const {
+        [[nodiscard]] bool assert_test(long cNum, long cDen, const bool pNum) const {
             simplify(cNum, cDen);
             return numerator == cNum && denominator == cDen && pInNumerator == pNum;
         }
