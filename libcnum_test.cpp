@@ -25,6 +25,13 @@ void runComplexNumbeTestNegative(const std::string &num) {
     throw std::logic_error("Спарсилась строка " + num + ", которая не должна парситься");
 }
 
+void runComputeTest(const std::string &expr, const std::string &expecet){
+    auto res_ = libcnum::calculateExpression(expr).ToExponential();
+    if(!(res_ == expecet)) {
+        throw std::logic_error("Некорректно вычеслено выражение " + expr + ". Получилось " + res_ + ", а должно было" + expecet);
+    }
+}
+
 int main() {
 #pragma region тесты на парсинг корректных чисел
 
@@ -120,6 +127,19 @@ int main() {
     runComplexNumbeTestNegative("11");
     runComplexNumbeTestNegative("11.1");
     runComplexNumbeTestNegative("sdfwef");
+#pragma endregion
+
+#pragma region Тесты арифметики
+    runComputeTest("2e^1/4iP + 3e^1/4iP", "5e^1/4iP");
+    runComputeTest("e^0.5iP + e^-0.5iP", "0");
+    runComputeTest("4e^1/3iP - 2e^1/3iP",  "2e^1/3iP");
+    runComputeTest("5e^iP - 3e^iP", "2e^iP");
+    runComputeTest("2e^1/6iP * 3e^1/3iP", "6e^1/2iP");
+    runComputeTest("e^1/4iP * e^-1/4iP", "1");
+    runComputeTest("6e^5/6iP / 2e^1/3iP", "3e^1/2iP");
+    runComputeTest("4e^iP / 2e^1/2iP", "2e^1/2iP");
+    runComputeTest("(2e^0.25iP)^2", "4e^1/2iP");
+    runComputeTest("(e^1/3iP)^3", "e^iP");
 #pragma endregion
     return 0;
 }
