@@ -119,6 +119,9 @@ namespace libcnum {
         if(power == other.power) {
             return ComplexNumber(coefficient - other.coefficient, power);
         }
+        if(power == (other.power * -1)) {
+            return ComplexNumber(coefficient + other.coefficient, power);
+        }
         const auto coefficient1 = static_cast<double>(coefficient),
             coefficient2 = static_cast<double>(other.coefficient),
             power1 = static_cast<double>(power),

@@ -51,7 +51,7 @@ namespace libcnum {
                 denominator = denominator >> 1;
             }
             //Умножаем числитель на 2 пока это возможно
-            while((exponent != 0) && !(fraction & 0x3FFFFFFFFFFFFFFF)) {
+            while((exponent != 0) && !(fraction & 0x4000000000000000)) {
                 exponent--;
                 fraction = fraction << 1;
             }
