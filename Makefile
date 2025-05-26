@@ -27,10 +27,12 @@ fractionnum.o: src/fractionnum.cpp
 clean:
 	rm -rf fractionnum.o expressionparser.o complexnumber.o libcnum_test.o libcnum_test cnum_calculator.o cnum_calculator libcnum.so
 
-install: cnum_calculator
-	cp cnum_calculator /usr/bin/
+install_libcnum: libcnum
 	cp libcnum.so /usr/lib64/
 	cp include/libcomplexnumber.h /usr/include/
+
+install: cnum_calculator install_libcnum
+	cp cnum_calculator /usr/bin/
 
 uninstall:
 	rm -rf /usr/bin/cnum_calculator
