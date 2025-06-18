@@ -1,6 +1,6 @@
 #include <stdexcept>
 
-#include "include/libcomplexnumber.h"
+#include "include/libcnum.h"
 
 void runComplexNumberParsingTestPositive(const std::string &num, const long cNum, const long cDen, const long pNum, const long pDen, const bool pPow) {
     bool flag = false;

@@ -1,5 +1,5 @@
-#ifndef LIBCOMPLEXNUMBER_H
-#define LIBCOMPLEXNUMBER_H
+#ifndef LIBCNUM_H
+#define LIBCNUM_H
 #include <ostream>
 
 namespace libcnum {
@@ -73,4 +73,4 @@ namespace libcnum {
     ComplexNumber calculateExpression(const std::string &expr);
 
 }
-#endif // LIBCOMPLEXNUMBER_H
+#endif // LIBCNUM_H

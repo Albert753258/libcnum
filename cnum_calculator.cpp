@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "include/libcomplexnumber.h"
+#include "include/libcnum.h"
 
 
 const std::string helpMessage = R"(Usage: cnum_calculator [OPTION]... "EXPRESSION"

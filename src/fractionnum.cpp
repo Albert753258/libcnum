@@ -1,4 +1,4 @@
-#include "../include/libcomplexnumber.h"
+#include "../include/libcnum.h"
 #include <numeric>
 #include <stdexcept>
 #include <iostream>
